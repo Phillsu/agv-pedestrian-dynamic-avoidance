@@ -1,0 +1,108 @@
+<!--
+  demo.launch  –  Full navigation demo
+  ──────────────────────────────────────────────────────────────────────────────
+    roslaunch tjark_nav demo.launch                    # obstacle arena (default)
+    roslaunch tjark_nav demo.launch scene:=cafe        # cafe world
+
+  Waypoints (set during mapping.launch) take priority over the built-in goals.
+  If maps/<scene>_waypoints.yaml exists the AGV navigates start → end from that
+  file.  Otherwise the hard-coded demo goals are used.
+
+  Arguments
+    scene       : "obstacle" (default) | "cafe"
+    gui         : show Gazebo window   (default true)
+    rviz        : show RViz window     (default true)
+    auto_goals  : auto-send goals      (default true)
+-->
+<launch>
+  <arg name="scene"      default="obstacle"/>
+  <arg name="gui"        default="true"/>
+  <arg name="rviz"       default="true"/>
+  <arg name="auto_goals" default="true"/>
+
+  <!-- ── scene-specific parameters ─────────────────────────────────────────── -->
+
+  <!-- obstacle scene -->
+  <arg name="world_file" value="$(find tjark_nav)/worlds/obstacle_avoidance.world"
+       if="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="map_file"   value="$(find tjark_nav)/maps/map.yaml"
+       if="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="x_spawn"    value="-10.0" if="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="y_spawn"    value="-5.0"  if="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="z_spawn"    value="0.30"  if="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="init_x"     value="-10.0" if="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="init_y"     value="-5.0"  if="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="init_a"     value="0.0"   if="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="wp_file"    value="$(find tjark_nav)/maps/obstacle_waypoints.yaml"
+       if="$(eval arg('scene') == 'obstacle')"/>
+
+  <!-- cafe scene -->
+  <arg name="world_file" value="$(find tjark_nav)/worlds/cafe_world.world"
+       unless="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="map_file"   value="$(find tjark_nav)/maps/cafe_map.yaml"
+       unless="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="x_spawn"    value="0.0"   unless="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="y_spawn"    value="2.0"   unless="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="z_spawn"    value="0.30"  unless="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="init_x"     value="0.0"   unless="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="init_y"     value="2.0"   unless="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="init_a"     value="0.0"   unless="$(eval arg('scene') == 'obstacle')"/>
+  <arg name="wp_file"    value="$(find tjark_nav)/maps/cafe_waypoints.yaml"
+       unless="$(eval arg('scene') == 'obstacle')"/>
+
+  <!-- ── 1 + 2: Gazebo world + robot ───────────────────────────────────────── -->
+  <include file="$(find tjark_nav)/launch/spawn_world.launch">
+    <arg name="world_name" value="$(arg world_file)"/>
+    <arg name="x_spawn"    value="$(arg x_spawn)"/>
+    <arg name="y_spawn"    value="$(arg y_spawn)"/>
+    <arg name="z_spawn"    value="$(arg z_spawn)"/>
+    <arg name="gui"        value="$(arg gui)"/>
+  </include>
+
+  <!-- ── 3: Navigation stack ────────────────────────────────────────────────── -->
+  <include file="$(find tjark_nav)/launch/navigation.launch">
+    <arg name="map_file" value="$(arg map_file)"/>
+    <arg name="x0"       value="$(arg init_x)"/>
+    <arg name="y0"       value="$(arg init_y)"/>
+    <arg name="a0"       value="$(arg init_a)"/>
+  </include>
+
+  <!-- ── 4: Pedestrian controller ───────────────────────────────────────────── -->
+  <node pkg="tjark_nav" type="pedestrian_controller.py"
+        name="pedestrian_controller" output="screen">
+    <param name="scene" value="$(arg scene)"/>
+    <!-- cafe pedestrians: 3 people crossing the robot's aisle path -->
+    <rosparam param="pedestrians" unless="$(eval arg('scene') == 'obstacle')">
+      - {name: ped_c1, x: -3.3, y: -2.0, ax: 0.0, ay: 4.5, period: 10.0, phase: 0.0,    color: blue}
+      - {name: ped_c2, x:  1.35, y: -2.0, ax: 0.0, ay: 4.5, period: 10.0, phase: 1.5708, color: orange}
+      - {name: ped_c3, x:  3.55, y: -6.0, ax: 0.0, ay: 3.5, period: 12.0, phase: 3.1416, color: blue}
+    </rosparam>
+    <!-- obstacle scene uses built-in Zone-A / Zone-B defaults (no param needed) -->
+  </node>
+
+  <!-- ── 5: Automated navigation goals ─────────────────────────────────────── -->
+  <group if="$(arg auto_goals)">
+    <node pkg="tjark_nav" type="navigation_demo.py"
+          name="navigation_demo" output="screen">
+      <!-- waypoints file: if it exists, overrides goals below -->
+      <param name="waypoints_file" value="$(arg wp_file)"/>
+
+      <param name="initial_pose_x" value="$(arg init_x)"/>
+      <param name="initial_pose_y" value="$(arg init_y)"/>
+      <param name="initial_pose_a" value="$(arg init_a)"/>
+
+      <!-- fallback goals when no waypoints file is present -->
+      <param name="goals" if="$(eval arg('scene') == 'obstacle')"
+             value="[{x: -2.8, y: -5.9, yaw: 0.0, label: 'Static obstacle bypass', pass_through: true}, {x: 1.0, y: -1.0, yaw: 0.0, label: 'Central corridor checkpoint'}, {x: 9.0, y: 5.0, yaw: 0.0, label: 'Final upper goal'}]"/>
+      <param name="goals" unless="$(eval arg('scene') == 'obstacle')"
+             value="[{x: 0.0, y: -3.5, yaw: 0.0, label: 'Cafe mid aisle'}, {x: 0.0, y: -7.5, yaw: 0.0, label: 'Cafe back aisle'}]"/>
+    </node>
+  </group>
+
+  <!-- ── 6: RViz ────────────────────────────────────────────────────────────── -->
+  <node pkg="rviz" type="rviz" name="rviz"
+        args="-d $(find tjark_nav)/rviz/navigation.rviz"
+        required="false"
+        launch-prefix="bash -c 'sleep 8 &amp;&amp; exec $0 $@'"
+        if="$(arg rviz)"/>
+</launch>

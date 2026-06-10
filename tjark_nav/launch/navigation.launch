@@ -1,0 +1,48 @@
+<!--
+  navigation.launch
+  ─────────────────
+  Launches the full ROS Navigation Stack:
+    • map_server   – serves the pre-built static map
+    • amcl         – localises the robot on the static map
+    • move_base    – global + local planning (NavFn + DWA)
+
+  Include this in demo.launch or run it standalone alongside spawn_world.launch.
+
+  Arguments
+    map_file : path to map YAML (default: maps/map.yaml)
+    x0, y0, a0 : AMCL initial pose (default matches obstacle scene spawn)
+-->
+<launch>
+  <arg name="map_file" default="$(find tjark_nav)/maps/map.yaml"/>
+  <arg name="x0"       default="-10.0"/>
+  <arg name="y0"       default="-5.0"/>
+  <arg name="a0"       default="0.0"/>
+
+  <!-- ── Static map ──────────────────────────────────────────────────────── -->
+  <node pkg="map_server" type="map_server" name="map_server"
+        args="$(arg map_file)" output="screen"/>
+
+  <!-- ── AMCL localisation ───────────────────────────────────────────────── -->
+  <node pkg="amcl" type="amcl" name="amcl" output="screen">
+    <rosparam file="$(find tjark_nav)/config/amcl.yaml" command="load"/>
+    <!-- Seed the filter at the known spawn position so it converges quickly -->
+    <param name="initial_pose_x" value="$(arg x0)"/>
+    <param name="initial_pose_y" value="$(arg y0)"/>
+    <param name="initial_pose_a" value="$(arg a0)"/>
+  </node>
+
+  <!-- ── move_base ───────────────────────────────────────────────────────── -->
+  <node pkg="move_base" type="move_base" name="move_base" output="screen">
+    <!-- Load common obstacle params into both costmap namespaces -->
+    <rosparam file="$(find tjark_nav)/config/costmap_common.yaml"
+              command="load" ns="global_costmap"/>
+    <rosparam file="$(find tjark_nav)/config/costmap_common.yaml"
+              command="load" ns="local_costmap"/>
+    <!-- Frame / size / frequency for each costmap -->
+    <rosparam file="$(find tjark_nav)/config/global_costmap.yaml" command="load" ns="global_costmap"/>
+    <rosparam file="$(find tjark_nav)/config/local_costmap.yaml"  command="load" ns="local_costmap"/>
+    <!-- Planner configs -->
+    <rosparam file="$(find tjark_nav)/config/dwa_local_planner.yaml" command="load"/>
+    <rosparam file="$(find tjark_nav)/config/move_base.yaml"         command="load"/>
+  </node>
+</launch>

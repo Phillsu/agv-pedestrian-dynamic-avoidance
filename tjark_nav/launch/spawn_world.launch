@@ -1,0 +1,52 @@
+<!--
+  spawn_world.launch
+  ──────────────────
+  Starts Gazebo with the obstacle-avoidance arena, spawns the tjark_agv robot,
+  and launches robot_state_publisher so TF is available.
+
+  Arguments
+    world_name  : path to .world file  (default: obstacle_avoidance.world)
+    x / y / z   : spawn position       (default: -10 / -5 / 0.3)
+    gui         : show Gazebo GUI       (default: true)
+-->
+<launch>
+  <arg name="world_name" default="$(find tjark_nav)/worlds/obstacle_avoidance.world"/>
+  <arg name="x_spawn"    default="-10.0"/>
+  <arg name="y_spawn"    default="-5.0"/>
+  <arg name="z_spawn"    default="0.30"/>
+  <arg name="gui"        default="true"/>
+
+  <!-- ── Gazebo ─────────────────────────────────────────────────────────── -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"   value="$(arg world_name)"/>
+    <arg name="paused"       value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui"          value="$(arg gui)"/>
+    <arg name="headless"     value="false"/>
+    <arg name="debug"        value="false"/>
+  </include>
+
+  <!-- ── Robot description (full xacro stack: URDF + sensors + controllers) -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find tjark_agv)/urdf/tjark_agv.xacro"/>
+
+  <!-- ── Spawn robot into Gazebo ──────────────────────────────────────────── -->
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_tjark_agv"
+        args="-urdf -model tjark_agv
+              -x $(arg x_spawn)
+              -y $(arg y_spawn)
+              -z $(arg z_spawn)
+              -R 0 -P 0 -Y 0
+              -param robot_description"
+        output="screen"/>
+
+  <!-- ── TF broadcaster for all fixed / joint-state joints ───────────────── -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher"
+        name="robot_state_publisher" output="screen">
+    <param name="publish_frequency" value="50.0"/>
+  </node>
+
+  <!-- Own odom -> base_link TF so duplicate Gazebo stamps are filtered. -->
+  <node pkg="tjark_nav" type="odom_tf_broadcaster.py"
+        name="odom_tf_broadcaster" output="screen"/>
+</launch>

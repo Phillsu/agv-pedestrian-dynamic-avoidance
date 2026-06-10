@@ -1,0 +1,43 @@
+# DWA Local Planner – faster, while keeping clearance around crossing pedestrians.
+DWAPlannerROS:
+
+  # ── velocity limits ────────────────────────────────────────────────────────
+  max_vel_x:     0.42
+  min_vel_x:    -0.05
+  max_vel_y:     0.0    # diff-drive: no lateral velocity
+  min_vel_y:     0.0
+  max_vel_trans: 0.42
+  min_vel_trans: 0.05
+  max_vel_theta: 1.1
+  min_vel_theta: 0.2
+
+  # ── acceleration limits ───────────────────────────────────────────────────
+  acc_lim_x:     1.2
+  acc_lim_y:     0.0
+  acc_lim_theta: 2.0
+
+  # ── goal tolerance ────────────────────────────────────────────────────────
+  xy_goal_tolerance:  0.30
+  yaw_goal_tolerance: 0.15
+  latch_xy_goal_tolerance: false
+
+  # ── simulation ────────────────────────────────────────────────────────────
+  sim_time:       3.0     # seconds of forward simulation
+  vx_samples:     20
+  vy_samples:      0      # no lateral samples
+  vth_samples:    48
+  controller_frequency: 10.0
+
+  # ── scoring ───────────────────────────────────────────────────────────────
+  path_distance_bias:    18.0   # stay near the global path, but allow detours
+  goal_distance_bias:    18.0   # drive toward goal
+  occdist_scale:          0.12  # strongly prefer clearance from obstacles
+  forward_point_distance: 0.325
+  stop_time_buffer:       0.60
+  scaling_speed:          0.22
+  max_scaling_factor:     0.4
+
+  # ── oscillation recovery ──────────────────────────────────────────────────
+  oscillation_reset_dist: 0.05
+  publish_traj_pc:        true
+  publish_cost_grid_pc:   true

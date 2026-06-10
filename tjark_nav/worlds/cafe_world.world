@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<!--
+  cafe_world.world
+  ──────────────────────────────────────────────────────────────────────────────
+  Self-contained indoor cafe arena.  Uses only inline SDF geometry so no
+  Gazebo model downloads are required.
+
+  Layout  (matches cafe_map.pgm – origin -6,-13, 12×17 m at 0.05 m/px)
+  ──────────────────────────────────────────────────────────────────────────────
+    Free interior : x ∈ [-4.5,  4.5],  y ∈ [-11.0,  3.0]
+    Walls (0.3 m) : West x=-4.65, East x=+4.65, North y=3.15, South y=-11.15
+
+    Tables  (0.7×0.7×0.75 m box)  at same x,y as Gazebo cafe.world:
+      table1  ( 0.5, -1.6)
+      table2  ( 2.4, -5.5)   table3  (-1.5, -5.5)
+      table4  ( 2.4, -9.0)   table5  (-1.5, -9.0)
+
+    Robot spawn (set in demo.launch) : (0.0, 2.0, 0.30)
+-->
+<sdf version="1.6">
+  <world name="cafe_world">
+
+    <include><uri>model://sun</uri></include>
+    <include><uri>model://ground_plane</uri></include>
+
+    <physics type="ode">
+      <real_time_update_rate>1000</real_time_update_rate>
+      <max_step_size>0.001</max_step_size>
+    </physics>
+
+    <!-- ── outer walls ──────────────────────────────────────────────────── -->
+    <model name="wall_west">
+      <static>true</static>
+      <pose>-4.65 -4.0 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 15.0 2.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.3 15.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.7 0.6 1</ambient><diffuse>0.8 0.7 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_east">
+      <static>true</static>
+      <pose>4.65 -4.0 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 15.0 2.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.3 15.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.7 0.6 1</ambient><diffuse>0.8 0.7 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_north">
+      <static>true</static>
+      <pose>0.0 3.15 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>9.6 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>9.6 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.7 0.6 1</ambient><diffuse>0.8 0.7 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_south">
+      <static>true</static>
+      <pose>0.0 -11.15 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>9.6 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>9.6 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.7 0.6 1</ambient><diffuse>0.8 0.7 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ── tables ───────────────────────────────────────────────────────── -->
+    <model name="table1">
+      <static>true</static>
+      <pose>0.5 -1.6 0.375 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.7 0.7 0.75</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.7 0.7 0.75</size></box></geometry>
+          <material><ambient>0.55 0.35 0.18 1</ambient><diffuse>0.55 0.35 0.18 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="table2">
+      <static>true</static>
+      <pose>2.4 -5.5 0.375 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.7 0.7 0.75</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.7 0.7 0.75</size></box></geometry>
+          <material><ambient>0.55 0.35 0.18 1</ambient><diffuse>0.55 0.35 0.18 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="table3">
+      <static>true</static>
+      <pose>-1.5 -5.5 0.375 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.7 0.7 0.75</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.7 0.7 0.75</size></box></geometry>
+          <material><ambient>0.55 0.35 0.18 1</ambient><diffuse>0.55 0.35 0.18 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="table4">
+      <static>true</static>
+      <pose>2.4 -9.0 0.375 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.7 0.7 0.75</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.7 0.7 0.75</size></box></geometry>
+          <material><ambient>0.55 0.35 0.18 1</ambient><diffuse>0.55 0.35 0.18 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="table5">
+      <static>true</static>
+      <pose>-1.5 -9.0 0.375 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.7 0.7 0.75</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.7 0.7 0.75</size></box></geometry>
+          <material><ambient>0.55 0.35 0.18 1</ambient><diffuse>0.55 0.35 0.18 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>

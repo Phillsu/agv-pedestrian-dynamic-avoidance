@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>tjark_nav</name>
+  <version>1.0.0</version>
+  <description>
+    Obstacle avoidance navigation for tjark_agv in dynamic environments.
+    Demonstrates AMCL-based localization and DWA obstacle avoidance with
+    simulated pedestrian crowds across two navigation segments.
+  </description>
+  <author>Phill</author>
+  <maintainer email="phill@example.com">Phill</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>tjark_agv</depend>
+  <depend>move_base</depend>
+  <depend>amcl</depend>
+  <depend>gmapping</depend>
+  <depend>rtabmap_ros</depend>
+  <depend>rtabmap_slam</depend>
+  <depend>map_server</depend>
+  <depend>dwa_local_planner</depend>
+  <depend>navfn</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>rviz</depend>
+  <depend>gazebo_ros</depend>
+  <depend>xacro</depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>actionlib</depend>
+  <depend>move_base_msgs</depend>
+  <depend>gazebo_msgs</depend>
+  <depend>tf</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>message_filters</depend>
+  <depend>sensor_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>image_geometry</depend>
+  <depend>python3-opencv</depend>
+</package>

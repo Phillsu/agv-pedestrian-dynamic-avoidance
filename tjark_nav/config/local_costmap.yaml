@@ -1,0 +1,12 @@
+# Local costmap – rolling window centred on the robot.
+# Kept small and fast so dynamic pedestrians are tracked in real time.
+global_frame:      odom
+robot_base_frame:  base_link
+update_frequency:  10.0
+publish_frequency: 5.0
+static_map:        false
+rolling_window:    true
+width:             8.0    # metres
+height:            8.0
+resolution:        0.05
+transform_tolerance: 0.5
