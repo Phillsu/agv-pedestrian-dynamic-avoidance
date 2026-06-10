@@ -9,7 +9,7 @@
 請在正式提交或分享前，將下方來源網址替換為實際下載來源：
 
 ```text
-tjark_agv download from: <這地方給我自己填網址>
+tjark_agv download from: (https://gitee.com/ChenpengYao/tjark_agv/)
 ```
 
 套件來源說明：
